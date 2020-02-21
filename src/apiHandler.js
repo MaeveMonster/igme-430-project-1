@@ -1,4 +1,29 @@
-const users = {};
+const trivia = [
+  { question: 'Which film started out the MCU?', answer: 'Iron Man' },
+  { question: 'How many actors have played the role of Peter Parker/Spider-Man?', answer: '3' },
+  { question: "What is Black Panther's first name?", answer: "T'chala" },
+  { question: 'Who played Bruce Banner in The Incredible Hulk?', answer: 'Edward Norton' },
+  { question: 'What type of radiation caused Bruce Banner to become the Hulk?', answer: 'Gamma Radiation' },
+  { question: 'What did the Avengers eat after the battle with the Chitauri in the first Avengers movie?', answer: 'Shwarma' },
+  { question: "What is Deadpool's real name?", answer: 'Wade Wilson' },
+  { question: "What is the name of Thor's hammer?", answer: 'Mjolnir' },
+  { question: "What is Captain America's shield made out of?", answer: 'Vibranium' },
+  { question: "What is the first name of Tony Stark's father?", answer: 'Howard' },
+  { question: 'In the comics and the X-Men films, who is the father of Quicksilver and Scarlet Witch?', answer: 'Magneto' },
+  { question: 'Where is Thanos from?', answer: 'Titan' },
+  { question: "What metal is bonded to Wolverine's skeleton?", answer: 'Adamantium' },
+  { question: 'In Infinity War, who is the first person we saw turn to dust?', answer: 'The Winter Soldier' },
+  { question: "Who are Thanos' adoptive daughters?", answer: 'Nebula and Gamora' },
+  { question: "What is the Human Torch's real name?", answer: 'Johnny Storm' },
+  { question: 'Which Avengers die in Avengers: Endgame?', answer: 'Black Widow and Iron Man' },
+  { question: "Which of Spider-Man's enemies has he been romantically attracted to?", answer: 'Black Cat' },
+  { question: 'Who directed Thor: Ragnarok?', answer: 'Taika Waititi' },
+  { question: 'What do Hawkeye and Black Widow remember very differently?', answer: 'Budapest' },
+  { question: "Who ripped Ulysses Klaue's arm off?", answer: 'Ultron' },
+  { question: "In the comics, what is the name of Thor's alter ego?", answer: 'Donald Blake' },
+];
+
+const highscores = {};
 
 const respondJSON = (request, response, status, object) => {
   const headers = {
@@ -19,42 +44,50 @@ const respondJSONMeta = (request, response, status) => {
   response.end();
 };
 
-const getUsers = (request, response) => {
-  const responseJSON = {
-    users,
-  };
+const getQuestion = (request, response) => {
+  const triviaQuestion = trivia[Math.floor(Math.random() * 22)];
+
+  const responseJSON = { question: triviaQuestion.question, answer: triviaQuestion.answer };
 
   return respondJSON(request, response, 200, responseJSON);
 };
 
-const getUsersMeta = (request, response) => respondJSONMeta(request, response, 200);
+const getQuestionMeta = (request, response) => respondJSONMeta(request, response, 200);
 
-const addUser = (request, response, body) => {
+const addHighScore = (request, response, body) => {
   const responseJSON = {
-    message: 'Name and age are both required.',
+    message: 'Name and score are both required.',
   };
 
-  if (!body.name || !body.age) {
+  if (!body.name || !body.score) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
   let responseCode = 201;
 
-  if (users[body.name]) {
+  if (highscores[body.name]) {
     responseCode = 204;
   } else {
-    users[body.name] = {};
+    highscores[body.name] = {};
   }
 
-  users[body.name].name = body.name;
-  users[body.name].age = body.age;
+  highscores[body.name].name = body.name;
+  highscores[body.name].score = body.score;
 
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
+};
+
+const getHighScores = (request, response) => {
+  const responseJSON = {
+    highscores,
+  };
+
+  return respondJSON(request, response, 200, responseJSON);
 };
 
 const notFound = (request, response) => {
@@ -69,9 +102,10 @@ const notFound = (request, response) => {
 const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
 
 module.exports = {
-  getUsers,
-  getUsersMeta,
-  addUser,
+  getQuestion,
+  getQuestionMeta,
+  addHighScore,
+  getHighScores,
   notFound,
   notFoundMeta,
 };

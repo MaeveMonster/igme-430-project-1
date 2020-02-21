@@ -7,7 +7,7 @@ const jsonHandler = require('./apiHandler.js');
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const handlePost = (request, response, parsedUrl) => {
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/addHighScore') {
     const res = response;
 
     const body = [];
@@ -26,7 +26,7 @@ const handlePost = (request, response, parsedUrl) => {
       const bodyString = Buffer.concat(body).toString();
       const bodyParams = query.parse(bodyString);
 
-      jsonHandler.addUser(request, res, bodyParams);
+      jsonHandler.addHighScore(request, res, bodyParams);
     });
   }
 };
@@ -34,8 +34,10 @@ const handlePost = (request, response, parsedUrl) => {
 const handleGet = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
-  } else if (parsedUrl.pathname === '/getUsers') {
-    jsonHandler.getUsers(request, response);
+  } else if (parsedUrl.pathname === '/getQuestion') {
+    jsonHandler.getQuestion(request, response);
+  } else if (parsedUrl.pathname === '/getHighScores') {
+    jsonHandler.getHighScores(request, response);
   } else if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
   } else {
@@ -44,8 +46,8 @@ const handleGet = (request, response, parsedUrl) => {
 };
 
 const handleHead = (request, response, parsedUrl) => {
-  if (parsedUrl.pathname === '/getUsers') {
-    jsonHandler.getUsersMeta(request, response);
+  if (parsedUrl.pathname === '/getQuestion') {
+    jsonHandler.getQuestionMeta(request, response);
   } else {
     jsonHandler.notFoundMeta(request, response);
   }

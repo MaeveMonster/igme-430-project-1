@@ -7,21 +7,21 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
         <script type="text/babel">
 const parseJSON = (xhr, content) => {
+
     const obj = JSON.parse(xhr.response);
     console.dir(obj);
 
-    if(obj.message) {
+    if(obj.highscores){
+        const highscoreList = document.createElement('p');
+        const highscores = JSON.stringify(obj.highscores);
+        highscoreList.textContent = highscores;
+        content.appendChild(highscoreList);
+    } else if(obj.question){
         const p = document.createElement('p');
-        p.textContent = `Message: ${obj.message}`;
+        p.textContent = `Question: ${obj.question}\nAnswer: ${obj.answer}`;
         content.appendChild(p);
     }
 
-    if(obj.users) {
-        const userList = document.createElement('p');
-        const users = JSON.stringify(obj.users);
-        userList.textContent = users;
-        content.appendChild(userList);
-    }
 };
 
 const handleResponse = (xhr) => {
@@ -51,26 +51,20 @@ const handleResponse = (xhr) => {
     parseJSON(xhr, content);
 };
 
-const requestUpdate = (e, userForm) => {
+const requestUpdate = (e, button) => {
     e.preventDefault();
-    const url = userForm.querySelector('#urlField').value;
-    const method = userForm.querySelector('#methodSelect').value;
 
     const xhr = new XMLHttpRequest();
-    xhr.open(method, url);
+    if(button.id === "questionButton"){
+        xhr.open('get', '/getQuestion');
+    } else if(button.id === "highscoreButton"){
+        xhr.open('get', '/getHighScores');
+    }
 
     xhr.setRequestHeader('Accept', 'application/json');
 
-    if(method === 'get'){
-        xhr.onload = () => handleResponse(xhr);
-        xhr.send();
-    } else if (method === 'post'){
-        xhr.onload = () => handleResponse(xhr);
-        xhr.send(`name=${document.querySelector('#nameField').value}&age=${document.querySelector('#ageField').value}`);
-    } else {
-        xhr.onload = () => handleResponse(xhr);
-        xhr.send();
-    }
+    xhr.onload = () => handleResponse(xhr);
+    xhr.send();
 
     return false;
 };
@@ -81,7 +75,7 @@ const sendPost = (e, nameForm) => {
     const nameMethod = nameForm.getAttribute('method');
 
     const nameField = nameForm.querySelector('#nameField');
-    const ageField = nameForm.querySelector('#ageField');
+    const highscoreField = nameForm.querySelector('#highscoreField');
 
     const xhr = new XMLHttpRequest();
     xhr.open(nameMethod, nameAction);
@@ -91,7 +85,7 @@ const sendPost = (e, nameForm) => {
 
     xhr.onload = () => handleResponse(xhr);
 
-    const formData = `name=${nameField.value}&age=${ageField.value}`;
+    const formData = `name=${nameField.value}&score=${highscoreField.value}`;
 
     xhr.send(formData);
 
@@ -99,14 +93,17 @@ const sendPost = (e, nameForm) => {
 };
 
 const init = () => {
-    const userForm = document.querySelector('#userForm');
     const nameForm = document.querySelector('#nameForm');
+    const questionButton = document.querySelector('#questionButton');
+    const highscoreButton = document.querySelector('#highscoreButton');
 
-    const getUsers = (e) => requestUpdate(e, userForm);
     const addUser = (e) => sendPost(e, nameForm);
+    const getQuestion = (e) => requestUpdate(e, questionButton);
+    const getHighScores = (e) => requestUpdate(e, highscoreButton);
 
-    userForm.addEventListener('submit', getUsers);
     nameForm.addEventListener('submit', addUser);
+    questionButton.onclick = getQuestion;
+    highscoreButton.onclick = getHighScores;
 };
 
 window.onload = init;
@@ -115,25 +112,16 @@ window.onload = init;
     </head>
     <body>
         <section id="top">
-            <h3>POST Status Code Tests</h3>
-            <form id="nameForm" action="/addUser" method="post">
+            <h3>Marvel Trivia Game</h3>
+            <form id="nameForm" action="/addHighScore" method="post">
                 <label for="name">Name: </label>
                 <input id="nameField" type="text" name="name" />
-                <label for="age">Age: </label>
-                <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
+                <label for="highscore">Highscore: </label>
+                <input id="highscoreField" type="number" name="highscore" min="0" max="100" step="1"/>
                 <input type="submit" value="Add User" />
             </form>
-            <form id="userForm" action="/getUsers" method="get">
-                <select id='urlField'>
-                    <option value='/getUsers'>/getUsers</option>
-                    <option value='/notReal'>/notReal</option>
-                </select>
-                <select id="methodSelect">
-                    <option value="get">GET</option>
-                    <option value="head">HEAD</option>
-                </select>
-                <input type="submit" value="Send" />
-            </form>
+            <button id="questionButton" method="get">Get Question</button>
+            <button id="highscoreButton" method="get">Get High Scores</button>
         </section>
         <section id="content">
         </section>
