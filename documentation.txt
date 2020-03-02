@@ -1,0 +1,5 @@
+My website is a marvel trivia game. It's more to help with trivia game in real life than it is to be a game entirely in itself. One player controls the game via the site and the other players just play. The user can keep track of all the players' scores and read off the questions.
+
+The API handles the requests for questions and answers and the players' scores.
+
+If I were to continue working on this I would make it a full fledged trivia game instead of just a helper app.

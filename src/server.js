@@ -6,6 +6,7 @@ const jsonHandler = require('./apiHandler.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
+/***handles post requests***/
 const handlePost = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/addHighScore') {
     const res = response;
@@ -31,6 +32,7 @@ const handlePost = (request, response, parsedUrl) => {
   }
 };
 
+/***handles get requests***/
 const handleGet = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/style.css') {
     htmlHandler.getCSS(request, response);
@@ -38,6 +40,8 @@ const handleGet = (request, response, parsedUrl) => {
     jsonHandler.getQuestion(request, response);
   } else if (parsedUrl.pathname === '/getHighScores') {
     jsonHandler.getHighScores(request, response);
+  } else if (parsedUrl.pathname === '/getAnswer') {
+    jsonHandler.getAnswer(request, response);
   } else if (parsedUrl.pathname === '/') {
     htmlHandler.getIndex(request, response);
   } else {
@@ -45,6 +49,7 @@ const handleGet = (request, response, parsedUrl) => {
   }
 };
 
+/***handles meta requests***/
 const handleHead = (request, response, parsedUrl) => {
   if (parsedUrl.pathname === '/getQuestion') {
     jsonHandler.getQuestionMeta(request, response);
@@ -53,6 +58,7 @@ const handleHead = (request, response, parsedUrl) => {
   }
 };
 
+/***occurs upon any request***/
 const onRequest = (request, response) => {
   const parsedUrl = url.parse(request.url);
   console.log(`Request method: ${request.method}`);

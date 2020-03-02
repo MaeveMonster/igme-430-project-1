@@ -1,41 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Marvel Trivia Game</title>
+        <title>Marvel Trivia</title>
         <link rel="stylesheet" type="text/css" href="/style.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-indigo.css">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
         <script type="text/babel">
+
+/***prints information to the screen ***/
 const parseJSON = (xhr, content) => {
 
     const obj = JSON.parse(xhr.response);
     console.dir(obj);
 
     if(obj.highscores){
-        const highscoreList = document.createElement('p');
-        const highscores = JSON.stringify(obj.highscores);
-        highscoreList.textContent = highscores;
+        const highscoreList = document.createElement('ul');
+        highscoreList.class = "w3-ul w3-border-top";
+        const keys = Object.keys(obj.highscores);
+        for(let i = 0; i < keys.length; i++){
+            const key = keys[i];
+            console.log(`Name: ${key}`);
+            console.log(`Score: ${obj.highscores[key].score}`);
+            const item = document.createElement('li');
+            item.class = "w3-theme-l4";
+            item.textContent = `${key}: ${obj.highscores[key].score}`;
+            highscoreList.appendChild(item);
+        }
         content.appendChild(highscoreList);
     } else if(obj.question){
         const p = document.createElement('p');
-        p.textContent = `Question: ${obj.question}\nAnswer: ${obj.answer}`;
+        p.textContent = `Question: ${obj.question}`;
+        content.appendChild(p);
+    } else if(obj.answer){
+        const p = document.createElement('p');
+        p.textContent = `Answer: ${obj.answer}`;
         content.appendChild(p);
     }
 
 };
 
+/***prints status codes to the screen***/
 const handleResponse = (xhr) => {
     const content = document.querySelector('#content');
 
     switch(xhr.status){
         case 200:
-            content.innerHTML = '<b>Success</b>';
+            content.innerHTML = '';
             break;
         case 201:
             content.innerHTML = '<b>Created</b>';
             break;
         case 204:
-            content.innerHTML = '<b>Updated (No Content)</b>';
+            content.innerHTML = '<b>Score Updated (No Content)</b>';
             return;
         case 400:
             content.innerHTML = '<b>Bad Request</b>';
@@ -51,6 +69,7 @@ const handleResponse = (xhr) => {
     parseJSON(xhr, content);
 };
 
+/***handles get requests***/
 const requestUpdate = (e, button) => {
     e.preventDefault();
 
@@ -59,6 +78,8 @@ const requestUpdate = (e, button) => {
         xhr.open('get', '/getQuestion');
     } else if(button.id === "highscoreButton"){
         xhr.open('get', '/getHighScores');
+    } else if(button.id === "answerButton"){
+        xhr.open('get', '/getAnswer');
     }
 
     xhr.setRequestHeader('Accept', 'application/json');
@@ -68,7 +89,7 @@ const requestUpdate = (e, button) => {
 
     return false;
 };
-
+/***handles post requests***/
 const sendPost = (e, nameForm) => {
     e.preventDefault();
     const nameAction = nameForm.getAttribute('action');
@@ -92,18 +113,22 @@ const sendPost = (e, nameForm) => {
     return false;
 };
 
+/***initializes app***/
 const init = () => {
     const nameForm = document.querySelector('#nameForm');
     const questionButton = document.querySelector('#questionButton');
     const highscoreButton = document.querySelector('#highscoreButton');
+    const answerButton = document.querySelector('#answerButton');
 
     const addUser = (e) => sendPost(e, nameForm);
     const getQuestion = (e) => requestUpdate(e, questionButton);
     const getHighScores = (e) => requestUpdate(e, highscoreButton);
+    const getAnswer = (e) => requestUpdate(e, answerButton);
 
     nameForm.addEventListener('submit', addUser);
     questionButton.onclick = getQuestion;
     highscoreButton.onclick = getHighScores;
+    answerButton.onclick = getAnswer;
 };
 
 window.onload = init;
@@ -111,19 +136,43 @@ window.onload = init;
         </script>
     </head>
     <body>
-        <section id="top">
-            <h3>Marvel Trivia Game</h3>
-            <form id="nameForm" action="/addHighScore" method="post">
-                <label for="name">Name: </label>
-                <input id="nameField" type="text" name="name" />
-                <label for="highscore">Highscore: </label>
-                <input id="highscoreField" type="number" name="highscore" min="0" max="100" step="1"/>
-                <input type="submit" value="Add User" />
-            </form>
-            <button id="questionButton" method="get">Get Question</button>
-            <button id="highscoreButton" method="get">Get High Scores</button>
+        <div class="w3-card-4">
+            <section id="top">
+            
+            <div class="w3-container w3-theme w3-card">
+                <h3>Marvel Trivia</h3>
+            </div>
+                
+                <div class="w3-container w3-text-theme">
+                    <p>Instructions:</p>
+                    <p>Use this app to play a game of Marvel Trivia!</p>
+                    <p>Click the Get Question button to get the question and the Get Answer button to get the answer.</p>
+                    <p>Add players scores to help keep track of who is winning. Use the Get Scores button to view the list of players and scores.</p>
+                </div>
+            
         </section>
         <section id="content">
         </section>
+        <div id="scroreForm" class="w3-container w3-theme-l1 w3-card">
+            <section id="bottom">
+                <form id="nameForm" action="/addHighScore" method="post">
+                    <label for="name">Name: </label>
+                    <input id="nameField" type="text" name="name" />
+                    <label for="highscore">Score: </label>
+                    <input id="highscoreField" type="number" name="highscore" min="0" max="100" step="1"/>
+                    <input class="w3-button w3-theme-action" type="submit" value="Add Score" />
+                </form>
+            </section>
+        </div>
+        
+        <div class="w3-container w3-card">
+            <section id="buttons">
+                <button class="w3-button w3-theme-action" id="questionButton" method="get">Get Question</button>
+                <button class="w3-button w3-theme-action" id="highscoreButton" method="get">Get Scores</button>
+                <button class="w3-button w3-theme-action" id="answerButton" method="get">Get Answer</button>
+            </section>
+        </div>
+        
+        </div>
     </body>
 </html>

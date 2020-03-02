@@ -1,3 +1,4 @@
+/***trivia questions and answers***/
 const trivia = [
   { question: 'Which film started out the MCU?', answer: 'Iron Man' },
   { question: 'How many actors have played the role of Peter Parker/Spider-Man?', answer: '3' },
@@ -23,8 +24,13 @@ const trivia = [
   { question: "In the comics, what is the name of Thor's alter ego?", answer: 'Donald Blake' },
 ];
 
+/***score object***/
 const highscores = {};
 
+/***answer to the current question***/
+let currentAnswer;
+
+/*** provides response with a JSON object***/
 const respondJSON = (request, response, status, object) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -35,6 +41,7 @@ const respondJSON = (request, response, status, object) => {
   response.end();
 };
 
+/***provides meta response***/
 const respondJSONMeta = (request, response, status) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -44,16 +51,24 @@ const respondJSONMeta = (request, response, status) => {
   response.end();
 };
 
+/***retrieves random quesrion***/
 const getQuestion = (request, response) => {
   const triviaQuestion = trivia[Math.floor(Math.random() * 22)];
 
-  const responseJSON = { question: triviaQuestion.question, answer: triviaQuestion.answer };
+  const responseJSON = { question: triviaQuestion.question };
+
+  currentAnswer = { answer: triviaQuestion.answer };
 
   return respondJSON(request, response, 200, responseJSON);
 };
 
+/***gets answer for the current question***/
+const getAnswer = (request, response) => respondJSON(request, response, 200, currentAnswer);
+
+/***provides meta response***/
 const getQuestionMeta = (request, response) => respondJSONMeta(request, response, 200);
 
+/***adds score to the list of scores***/
 const addHighScore = (request, response, body) => {
   const responseJSON = {
     message: 'Name and score are both required.',
@@ -82,6 +97,7 @@ const addHighScore = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+/***gets the list of scores***/
 const getHighScores = (request, response) => {
   const responseJSON = {
     highscores,
@@ -90,6 +106,7 @@ const getHighScores = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
+/***gets not found response***/
 const notFound = (request, response) => {
   const responseJSON = {
     message: 'The page you were looking for was not found.',
@@ -99,10 +116,12 @@ const notFound = (request, response) => {
   return respondJSON(request, response, 404, responseJSON);
 };
 
+/***provides meta response***/
 const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
 
 module.exports = {
   getQuestion,
+  getAnswer,
   getQuestionMeta,
   addHighScore,
   getHighScores,
